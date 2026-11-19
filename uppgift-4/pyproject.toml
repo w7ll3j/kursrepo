@@ -1,0 +1,19 @@
+[project]
+name = "uppgift-4"
+version = "0.1.0"
+description = "Projektuppgift 4"
+readme = "README.md"
+authors = [
+    { name = "w7ll3j", email = "williamlundqvist77@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.34.2",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "ruff>=0.17.4",
+    "pytest>=9.1.1",
+]
