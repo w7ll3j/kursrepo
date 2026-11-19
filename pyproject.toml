@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "IT-sakerhet pythonkurs projekt"
 readme = "README.md"
 authors = [
-    { name = "w7ll3j", email = "williamlundqvist77@gmail.com" }
+    { name = "w7ll3j" }
 ]
 requires-python = ">=3.13"
 dependencies = [
