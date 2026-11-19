@@ -12,15 +12,15 @@ speglad_input = dict(zip(tecken, speglade_tecken))
 
 
 def solution(note):
-    """Krypterar och dekrypterar text med Atbash-chiffret.
-    Varje liten bokstav ersätts med bokstaven på samma position i det omvända alfabetet.
-    a blir exempelvis z, och b blir y.
-    Siffror speglas och ersätts på samma sätt. 0 blir 9, och 1 blir 8.
-    Stora bokstäver och andra tecken lämnas oförändrade.
-    Kryptering och dekryptering fungerar på samma sätt, eftersom ett tecken som speglas två gånger
-    ger tillbaka originalet. a blir z, och z blir a.
-    Parametern note är en sträng med texten som ska krypteras eller dekrypteras.
-    Funktionen returnerar en sträng där små bokstäver och siffror byts ut utifrån Atbash.
+    """Kryptera eller dekryptera text med Atbash-chiffret.
+
+    Små bokstäver och siffror speglas i respektive teckenföljd.
+    Stora bokstäver och övriga tecken lämnas oförändrade.
+    Samma funktion används för både kryptering och dekryptering.
+
+    note: texten som ska krypteras eller dekrypteras.
+
+    Returnerar en sträng med de speglade tecknen.
     """
     resultat = "".join(
         [speglad_input.get(alla_tecken, alla_tecken) for alla_tecken in note]

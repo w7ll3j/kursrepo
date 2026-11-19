@@ -6,13 +6,14 @@ ACCESS_LOG = Path(__file__).parent / "access.log"
 
 
 def solution(path):
-    """Läser loggfilen på sökvägen (path)
-    Funktionen returnerar en lista i stigande ordning, innehållande ID:n på personer som
-    lämnade datorhallen den 14e augusti mellan timmarna 13 och 18.
+    """Returnera unika ID:n för personer som lämnade datorhallen den 14 augusti mellan kl. 13 och 18.
 
-    Ett ID består av 5 tecken.
-    Tomma rader hoppas över, och trasiga rader kastar ValueError med ett meddelande.
-    Ett ID som lämnat hallen flera gånger ska bara stå med en gång.
+    Tomma rader hoppas över och felaktigt formaterade rader
+    orsakar ValueError. ID:n sorteras i stigande ordning.
+
+    path: sökväg till loggfilen.
+
+    Returnerar en sorterad lista med unika ID:n som strängar.
     """
     with open(path, encoding="utf-8") as fil:
         ids = set()
