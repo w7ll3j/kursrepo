@@ -14,7 +14,7 @@ SUSPECTS: list[str] = ["id001", "id007", "id009", "id015"]
 # Svaret från uppgift 3: namnet på den stulna datorn.
 COMPUTER = "makar"
 
-URL = "https://gist.githubusercontent.com/Grokzen/11ddfa83c0f0d379d33d7abbfdd1c77e/raw/aafbe6fce8a47e80edfe45e464791f7b66607fb7/gistfile1.txt"
+URL = "https://gist.githubusercontent.com/Grokzen/11ddfa83c0f0d379d33d7abbfdd1c77e/raw"
 
 RAPPORT_CSV = Path(__file__).parent / "rapport.csv"
 
@@ -26,7 +26,7 @@ def room_kontroll(varde: str, del_: str) -> None:
 
     ValueError om delen saknar värde eller innehåller andra tecken än siffrorna 0-9.
 
-    varde: värdet som ska kontrolleras.
+    varde: delen av rumsnamnet som ska kontrolleras.
     del_: namnet på delen som används i felmeddelandet.
 
     Returnerar ingenting.
@@ -60,7 +60,7 @@ class Room:
         samt i hjälpfunktionen room_kontroll om en del saknar värde eller innehåller
         något annat än siffror.
 
-        name: rumsnamnet.
+        name: hela namnet på rummet.
         """
         self.name = name
         delar = name.split("-")
@@ -111,9 +111,9 @@ class User:
     def __init__(self, id: str, name: str, access: str) -> None:
         """Sparar id, namn och accesskoden.
 
-        id: id-numret.
-        name: namnet.
-        access: koden.
+        id: id-numret på en användare.
+        name: namnet på användaren.
+        access: koden som avgör vilka rum i byggnaden som användaren har access till.
         """
         self.id = id
         self.name = name
@@ -126,12 +126,12 @@ class User:
         return f"{self.name} ({self.id})"
 
     def has_access(self, room: Room, rooms: list[Room]) -> bool:
-        """Kontrollerar om användaren har tillgång till ett visst rum och returnerar en bool.
+        """Kontrollerar om användaren har tillgång till ett visst rum.
 
         ValueError om rummet inte finns i listan, och när accesskodens längd inte stämmer.
 
-        room: Room-objektet som ska kontrolleras.
-        rooms: listan över alla Room-objekt.
+        room: rummet som ska kontrolleras.
+        rooms: alla rum i byggnaden.
 
         Returnerar True om indexet i accesskoden är 1. False om indexet i accesskoden är 0.
         """
@@ -167,7 +167,7 @@ def kontrollera_post(post: dict[str, Any]) -> None:
     om accesskoden innehåller något annat än 0 eller 1,
     om accesskoden är tom.
 
-    post: en dict som ska kontrolleras.
+    post: en användare med id, namn och accesskod.
 
     Returnerar ingenting.
     """
@@ -186,15 +186,14 @@ def kontrollera_post(post: dict[str, Any]) -> None:
 
 
 def parse_users(data: list[dict[str, Any]]) -> list[User]:
-    """Kontrollerar användardatan och returnerar en lista med User-objekt.
+    """Kontrollerar användardatan och returnerar användarna i ett format som programmet förstår.
 
     ValueError om datan inte är en lista och om någon post i listan inte är en dict.
     ValueError från kontrollera_post skickas vidare till anropande kod.
 
     data: Användarlistan som hämtas från webben med funktionen hamta_anvandare.
-    Varje post är en dict med nycklarna id, name och access.
 
-    Returnerar en lista med User-objekt som innehåller värdena för id, name och access.
+    Returnerar användarna med deras id, name och access.
     """
     anvandare_lista = []
 
@@ -213,14 +212,14 @@ def parse_users(data: list[dict[str, Any]]) -> list[User]:
 
 
 def load_rooms(path: str) -> dict[str, Room]:
-    """Läser CSV-filen och skapar en dict med rum per dator.
+    """Läser CSV-filen och returnerar alla datorer och deras rum.
 
     FileNotFoundError om filen inte finns i path.
     ValueError om rumsnamnet har fel format. Kastas i Room-klassen.
 
     path: sökvägen till CSV-filen med rader som innehåller ett rum samt datorn som ligger i rummet.
 
-    Returnerar en dict med datornamn som nyckel och ett Room-objekt som värde.
+    Returnerar alla datorer och rummet de befinner sig i.
     """
     with open(path, newline="", encoding="utf-8") as fil:
         rum_per_dator = {
@@ -231,11 +230,11 @@ def load_rooms(path: str) -> dict[str, Room]:
 
 
 def unika_rum(rum_per_dator: dict[str, Room]) -> list[Room]:
-    """Tar emot en dict med datorer och Room-objekt, och returnerar en lista med Room-objekt.
+    """Tar bort dubbletter bland rummen.
 
-    rum_per_dator: en dict från load_rooms() med datornamn som nycklar och Room-objektet som värde.
+    rum_per_dator: resultatet från load_rooms() med datornamn och rum.
 
-    Returnerar en lista med Room-objekt, som endast innehåller varje rum en gång.
+    Returnerar rummen där varje rum endast förekommer en gång.
     """
     resultat = []
 
@@ -247,14 +246,14 @@ def unika_rum(rum_per_dator: dict[str, Room]) -> list[Room]:
 
 
 def hamta_datorns_rum(computer: str, computer_rooms: dict[str, Room]) -> Room:
-    """Tar emot en dator och en dict med datorer och Room-objekt, och returnerar datorns Room-objekt.
+    """Hämtar rummet för en dator.
 
     ValueError om datorn inte finns i computer_rooms.
 
     computer: datornamnet som ska hämtas.
-    computer_rooms: en dict från load_rooms() med datornamn som nycklar och Room-objektet som värde.
+    computer_rooms: resultatet från load_rooms() med datornamn och rum.
 
-    Returnerar Room-objektet för den angivna datorn.
+    Returnerar rummet där den angivna datorn står.
     """
     try:
         return computer_rooms[computer]
@@ -274,10 +273,10 @@ def find_culprit(
     ValueError från anropade funktioner och metoder skickas vidare till anropande kod.
     NoUniqueCulpritError när inte exakt en misstänkt har access till datorns rum.
 
-    suspects: en lista över de suspekta id-numren från svaret i uppgift-2.
-    computer: en sträng med den stulna datorn från svaret i uppgift-3.
-    users: en lista över alla användare.
-    computer_rooms: en dict med datorer som nycklar och vilket rum den befann sig i som värde.
+    suspects: de suspekta id-numren från svaret i uppgift-2.
+    computer: den stulna datorn från svaret i uppgift-3.
+    users: alla användare.
+    computer_rooms: datorer och vilket rum de befann sig i.
 
     Returnerar användaren om det finns exakt en misstänkt med
     access till rummet med den stulna datorn.
@@ -321,10 +320,10 @@ def write_report(
     ValueError från anropade funktioner och metoder skickas vidare till anropande kod.
 
     path: sökvägen till csv-filen.
-    suspects: en lista över de suspekta id-numren från svaret i uppgift-2.
-    computer: en sträng med den stulna datorn från svaret i uppgift-3.
-    users: en lista över alla användare.
-    computer_rooms: en dict med datorer som nycklar, och vilket rum den befann sig i som värde.
+    suspects: de suspekta id-numren från svaret i uppgift-2.
+    computer: den stulna datorn från svaret i uppgift-3.
+    users: alla användare.
+    computer_rooms: datorer och vilket rum de befann sig i.
 
     Returnerar ingenting, utan skriver rapporten till path med de misstänkta användarna.
     """
@@ -364,7 +363,7 @@ def hamta_anvandare() -> list[dict[str, Any]]:
 
     ValueError om hämtningen misslyckas och vid ogiltig JSON.
 
-    Returnerar en lista med dicts, ett per användare.
+    Returnerar rå användardata från webben.
     """
     try:
         # 5 sekunders timeout för att ge rimlig tid för svar
@@ -382,8 +381,8 @@ def hamta_anvandare() -> list[dict[str, Any]]:
 def solution() -> str:
     """Kör alla funktioner och returnerar namnet på den skyldige.
 
-    Anropar hamta_anvandare och får en lista med dicts för varje användare.
-    Anropar sedan parse_users med listan från ovan och får User-objekt för varje användare.
+    Anropar hamta_anvandare och får användardata från webben.
+    Anropar sedan parse_users med listan från ovan och får användare som programmet kan jämföra mot.
     Läser CSV-filen med load_rooms och får varje datornamn och deras rum.
     Anropar sedan write_report och find_culprit med resultaten från tidigare steg.
     Rapporten skrivs även om ingen unik skyldig finns.
